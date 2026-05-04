@@ -8,7 +8,7 @@ mkdir -p $MOD_PATH/system/vendor/lib/modules
 # 1. Criar module.prop
 cat <<EOF > $MOD_PATH/module.prop
 id=rm11_display_fix
-name=RedMagic 11 Pro Display Stabilization
+name=RedMagic 11 Pro Stabilized Drivers
 version=v1.0-SM8750
 versionCode=1
 author=Coding-BR & Antigravity
@@ -46,6 +46,16 @@ set_permissions() {
   set_perm_recursive \$MODPATH 0 0 0755 0644
 }
 EOF
+
+# 3.1 Criar script de boot (forçar bind mount)
+cat <<EOF > $MOD_PATH/post-fs-data.sh
+#!/system/bin/sh
+MODDIR=\${0%/*}
+# Forçar bind mount se o overlay automático falhar
+mount --bind \$MODDIR/system/vendor/lib/modules/msm_drm.ko /vendor/lib/modules/msm_drm.ko
+mount --bind \$MODDIR/system/vendor/lib/modules/msm_kgsl.ko /vendor/lib/modules/msm_kgsl.ko
+EOF
+chmod 755 $MOD_PATH/post-fs-data.sh
 
 # 4. Gerar o ZIP
 cd $MOD_PATH
