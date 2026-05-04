@@ -63,13 +63,31 @@ build_gki_kernel() {
     echo -e "  ${YELLOW}→ Gerando gki_defconfig...${NC}"
     make O=out gki_defconfig
 
-    # Adicionar CONFIG_ARCH_CANOE
-    echo -e "  ${YELLOW}→ Adicionando CONFIG_ARCH_CANOE=y...${NC}"
+    # Adicionar CONFIG_ARCH_CANOE e WLAN configs
+    echo -e "  ${YELLOW}→ Adicionando configurações extras...${NC}"
     echo "CONFIG_ARCH_CANOE=y" >> out/.config
+    echo "CONFIG_CFG80211=m" >> out/.config
+    echo "CONFIG_CFG80211_CERTIFICATION_ONUS=y" >> out/.config
+    echo "CONFIG_CFG80211_REG_CELLULAR_HINTS=y" >> out/.config
+    echo "CONFIG_MAC80211=m" >> out/.config
+    echo "CONFIG_MHI_BUS=m" >> out/.config
+    echo "CONFIG_MHI_BUS_PCI_GENERIC=m" >> out/.config
+    echo "CONFIG_MHI_NET=m" >> out/.config
+    echo "CONFIG_QCOM_QMI_HELPERS=m" >> out/.config
+    echo "CONFIG_QRTR=m" >> out/.config
+    echo "CONFIG_QRTR_SMD=m" >> out/.config
+    echo "CONFIG_QRTR_TUN=m" >> out/.config
+    echo "CONFIG_QCOM_PD_MAPPER=m" >> out/.config
+    echo "CONFIG_QCOM_SYSMON=m" >> out/.config
+    echo "CONFIG_QCOM_SMEM=y" >> out/.config
+    echo "CONFIG_RPMSG_QCOM_SMD=y" >> out/.config
+    make O=out olddefconfig
 
     # Compilar
     echo -e "  ${YELLOW}→ Compilando Image (${JOBS} threads)...${NC}"
     make O=out -j${JOBS} Image
+    echo -e "  ${YELLOW}→ Compilando Módulos do Kernel...${NC}"
+    make O=out -j${JOBS} modules
 
     if [ -f "out/arch/arm64/boot/Image" ]; then
         IMAGE_SIZE=$(du -sh out/arch/arm64/boot/Image | cut -f1)
